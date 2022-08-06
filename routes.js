@@ -17,12 +17,11 @@ on the Request object if and only if the request is successfully authenticated.
 We can use the currentUser property with confidence because our inline route handler 
 function will never be called if the request doesn't successfully authenticate.*/
 router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
-const user = req.currentUser;
+const currentUser = req.currentUser;
 
-res.json({
-  firstName: user.firstName,
-  lastName: user.lastName
-});
+const allUsers = await User.findAll();
+res.json(allUsers)
+
 }));
 
 
@@ -32,6 +31,7 @@ router.post('/users', asyncHandler(async (req, res) => {
   try {
     await User.create(req.body);
     res.status(201).json({ "message": "Account successfully created!" });
+    
   } catch (error) {
     if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
       const errors = error.errors.map(err => err.message);
@@ -45,30 +45,46 @@ router.post('/users', asyncHandler(async (req, res) => {
 
 
 
-  // Send a GET request to /quotes to READ a list of quotes
-  router.get("/courses", asyncHandler(async (req, res) => {
-    res.location = '/';
-    const course = await Course.findAll();
-        res.json(course)
-    
-    }));
-    
-    
+  // Send a GET request to /quotes to READ a list of courses
+  router.get(
+    "/courses",
+    asyncHandler(async (req, res) => {
+      const course = await Course.findAll({
+        include: [
+          {
+            model: User,
+          },
+        ],
+      });
+      if (course) {
+        res.status(200).json(course);
+      } else {
+        res.status(404).json({ message: "Course not found" });
+      }
+    })
+  );
+
   // Send a GET request to /quotes/:id to READ(view) a quote
   //this get method returns a single quote
   
-  router.get("/courses/:id", asyncHandler(async (req, res) => {
-    try {
-      const course = await Course.findByPk(req.params.id);
+  router.get(
+    "/courses/:id",
+    asyncHandler(async (req, res) => {
+      const course = await Course.findByPk(req.params.id, {
+        include: [
+          {
+            model: User,
+          },
+        ],
+      });
       if (course) {
-        res.json(course);
+        res.status(200).json(course);
       } else {
-        res.status(404).json({ message: "Course not found." });
+        res.status(404).json({ message: "Course not found" });
       }
-    } catch (err) {
-      res.status(500).json({ message: err.message });
-    }
-  }));
+    })
+  );
+  
   
 
   // Send a POST request to /quotes to  CREATE a new course
@@ -78,7 +94,8 @@ router.post('/users', asyncHandler(async (req, res) => {
     "/courses", authenticateUser, 
     asyncHandler(async (req, res) => {
         try {
-            await Course.create(req.body);
+          const course = await Course.create(req.body);
+          res.location(`/courses/${course.id}`);
             res.status(201).json({ "message": "Course successfully created!" });
           } catch (error) {
             if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
@@ -92,37 +109,44 @@ router.post('/users', asyncHandler(async (req, res) => {
 
   // Send a PUT request to /quotes/:id to UPDATE (edit) a quote
   router.put(
-    "/courses/:id", authenticateUser, 
-    asyncHandler(async (req, res, next) => {
-        try {
-            await Course.update(req.body);
-            res.status(201).json({ "message": "Course successfully updated!" });
-          } catch (error) {
-            if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
-              const errors = error.errors.map(err => err.message);
-              res.status(400).json({ errors });   
-            } else {
-              throw error;
-            }
-          }
-        }));
-
-
+    "/courses/:id",
+    authenticateUser,
+    asyncHandler(async (req, res) => {
+      try {
+        let course = await Course.findByPk(req.params.id);
+        if (course) {
+          await course.update(req.body);
+          res.status(204).end();
+        } else {
+          res.status(404).json();
+        }
+      } catch (error) {
+        if (
+          error.name === "SequelizeValidationError" ||
+          error.name === "SequelizeUniqueConstraintError"
+        ) {
+          const errors = error.errors.map((err) => err.message);
+          res.status(400).json({ errors });
+        } else {
+          throw error;
+        };
+      }
+    })
+  );
+  
 
   // Send a DELETE request to /quotes/:id DELETE a quote
   router.delete("/courses/:id", authenticateUser, asyncHandler(async (req, res, next) => {
-    try {
         const course = await Course.findByPk(req.params.id);
-      } catch (error) {
         if (course) {
             await course.destroy();
-            res.redirect("/courses");
-          } else {
-            res.sendStatus(404);
+            res.status(204).end();
+        } else {
+            res.status(404);
           }
       
-    }
-}));
+    })
+  );
 
 
 

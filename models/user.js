@@ -5,6 +5,11 @@ const bcryptjs = require("bcryptjs");
 module.exports = (sequelize) => {
   class User extends Model {}
   User.init({
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
       firstName: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -74,8 +79,11 @@ module.exports = (sequelize) => {
             msg: 'Both passwords must match'
           }
         }
-      }
-    }, { sequelize });
+      },
+
+      
+    }, 
+    { sequelize });
   
 
   User.associate = (models) => {
@@ -83,11 +91,9 @@ module.exports = (sequelize) => {
     passing in a reference to the Movie model:
     This tells Sequelize that a person can be associated with one or more (or "many") movies.*/
     User.hasMany(models.Course, {
-      as: "userId", //alias
       foreignKey: {
-        fieldName: "id",
+        fieldName: "userId",
         allowNull: false,
-        primaryKey: true,
       },
     });
   };

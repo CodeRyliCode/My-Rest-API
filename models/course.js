@@ -4,6 +4,11 @@ const Sequelize = require('sequelize');
 module.exports = (sequelize) => {
   class Course extends Sequelize.Model {}
   Course.init({
+    id: {
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
     title: {
       type: Sequelize.STRING,
       allowNull: false,
@@ -30,9 +35,11 @@ module.exports = (sequelize) => {
     },
     estimatedTime: {
         type: Sequelize.STRING,
-        allowNull: false,
       },
       materialsNeeded: {
+        type: Sequelize.STRING,
+      },
+      userId: {
         type: Sequelize.STRING,
         allowNull: false,
       },
@@ -48,11 +55,9 @@ Course.belongsTo(models.User, {
   Let's also keep the Person model association in sync with the Movie model association.*/
 
 
-  as: 'userId', //alias
   foreignKey: {
-  fieldName: 'id',
+  fieldName: 'userId',
   allowNull: false,
-  primaryKey: true
 
  },
 });
