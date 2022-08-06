@@ -27,7 +27,7 @@ if(user) {
 (from the Authorization header) to the encrypted password retrieved from 
 the database. Assign the result to the variable authenticated:*/
     const authenticated = bcryptjs
-    .compareSync(credentials.pass, user.confirmedPassword);
+    .compareSync(credentials.pass, user.password);
     if (authenticated) { //if the passwords match
 console.log( `Authentication successul for user: ${user.firstName} ${user.lastName}`);
 
