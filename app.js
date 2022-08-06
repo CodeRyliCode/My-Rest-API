@@ -3,15 +3,14 @@
 // load modules
 const express = require('express');
 const morgan = require('morgan');
-
-const Sequelize = require('sequelize');
-
-
-// variable to enable global error logging
-const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
-
+const { sequelize } = require('./models');
+const routes = require('./routes');
 // create the Express app
 const app = express();
+// Setup request body JSON parsing.
+app.use(express.json());
+
+
 
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
@@ -22,6 +21,10 @@ app.get('/', (req, res) => {
     message: 'Welcome to the REST API project!',
   });
 });
+
+app.use('/api', routes);
+
+
 
 // send 404 if no other route matched
 app.use((req, res) => {
@@ -45,23 +48,27 @@ app.use((err, req, res, next) => {
 // set our port
 app.set('port', process.env.PORT || 5000);
 
+// Sequelize model synchronization, then start listening on our port.
+sequelize.sync()
+  .then( () => {
 // start listening on our port
 const server = app.listen(app.get('port'), () => {
   console.log(`Express server is listening on port ${server.address().port}`);
 });
+  });
 
-// The dialect parameter specifies the specific version of SQL you're 
-// using (the SQL dialect of the database), which in this case it's 
-// sqlite. Since SQLite is a file-based database that doesn't require 
-// credentials or a host, you use the storage key to specify the file 
-// path or the storage engine for SQLite. The value 'library.db' is 
-// what we are using'.
-const sequelize = new Sequelize({
-  dialect: 'sqlite',
-  storage: 'library.db',
-  logging: false
+// // The dialect parameter specifies the specific version of SQL you're 
+// // using (the SQL dialect of the database), which in this case it's 
+// // sqlite. Since SQLite is a file-based database that doesn't require 
+// // credentials or a host, you use the storage key to specify the file 
+// // path or the storage engine for SQLite. The value 'library.db' is 
+// // what we are using'.
+// const sequelize = new Sequelize({
+//   dialect: 'sqlite',
+//   storage: 'library.db',
+//   logging: false
 
-});
+// });
 
 
 

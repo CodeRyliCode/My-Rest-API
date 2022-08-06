@@ -39,7 +39,7 @@ Course.belongsTo(models.User, {
 
   as: 'userId', //alias
   foreignKey: {
-  fieldName: 'userId',
+  fieldName: 'uniqueUserId',
   allowNull: false,
  },
 });

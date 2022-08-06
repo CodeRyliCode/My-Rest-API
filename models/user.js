@@ -1,6 +1,6 @@
 'use strict';
 const { Model, DataTypes } = require('sequelize');
-const bcrypt = require('bcrypt');
+// const bcrypt = require('bcrypt');
 
 module.exports = (sequelize) => {
   class User extends Model {}
@@ -68,21 +68,21 @@ module.exports = (sequelize) => {
         }
       }
     },
-    confirmedPassword: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      set(val) {
-        if ( val === this.password ) {
-          const hashedPassword = bcrypt.hashSync(val, 10);
-          this.setDataValue('confirmedPassword', hashedPassword);
-        }
-      },
-      validate: {
-        notNull: {
-          msg: 'Both passwords must match'
-        }
-      }
-    }
+    // confirmedPassword: {
+    //   type: DataTypes.STRING,
+    //   allowNull: false,
+    //   set(val) {
+    //     if ( val === this.password ) {
+    //       const hashedPassword = bcrypt.hashSync(val, 10);
+    //       this.setDataValue('confirmedPassword', hashedPassword);
+    //     }
+    //   },
+    //   validate: {
+    //     notNull: {
+    //       msg: 'Both passwords must match'
+    //     }
+    //   }
+    // }
   }, { sequelize });
 
   User.associate = (models) => {
@@ -92,7 +92,7 @@ module.exports = (sequelize) => {
     User.hasMany(models.Course, { 
       as: 'userId', //alias
       foreignKey: {
-      fieldName: 'userId',
+      fieldName: 'uniqueUserId',
       allowNull: false,
     },
   });
