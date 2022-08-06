@@ -47,12 +47,10 @@ router.post('/users', asyncHandler(async (req, res) => {
 
   // Send a GET request to /quotes to READ a list of quotes
   router.get("/courses", asyncHandler(async (req, res) => {
-    const courses = req.currentCourse;
-
-    res.json({
-      title: course.title,
-      description: course.description
-    });
+    res.location = '/';
+    const course = await Course.findAll();
+        res.json(course)
+    
     }));
     
     
