@@ -33,17 +33,17 @@ app.use((req, res) => {
   });
 });
 
-// setup a global error handler
-app.use((err, req, res, next) => {
-  if (enableGlobalErrorLogging) {
-    console.error(`Global error handler: ${JSON.stringify(err.stack)}`);
-  }
 
-  res.status(err.status || 500).json({
+// Setup a global error handler.
+app.use((err, req, res, next) => {
+  console.error(`Global error handler: ${JSON.stringify(err.stack)}`);
+
+  res.status(500).json({
     message: err.message,
-    error: {},
+    error: process.env.NODE_ENV === 'production' ? {} : err,
   });
 });
+
 
 // set our port
 app.set('port', process.env.PORT || 5000);
