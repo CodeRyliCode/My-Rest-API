@@ -6,6 +6,7 @@ const { User } = require('../models');
 
 
 
+
 /*Middleware to authenticate the request using Basic Authentication.
 exports.authenticateUser exports the middleware function so that you're 
 able to import it from within another module. The next() function passes 
@@ -16,9 +17,11 @@ exports.authenticateUser = async (req, res, next) => {
     const credentials = auth(req);
 //  // If the user's credentials are available...
     if(credentials) {
-        /*find a user account whose username property matches the user 
+        /*find a user account whose firstName property matches the user 
         credential's name property. Assign the user returned by User.findOne() to the variable user:*/
-const user = await User.findOne({ where: {username: credentials.name} });
+const user = await User.findOne({ where: { emailAddress: credentials.name} });
+
+    
 if(user) {
 /*use the bcrypt compareSync() method to compare the user's password 
 (from the Authorization header) to the encrypted password retrieved from 
@@ -26,17 +29,17 @@ the database. Assign the result to the variable authenticated:*/
     const authenticated = bcryptjs
     .compareSync(credentials.pass, user.confirmedPassword);
     if (authenticated) { //if the passwords match
-console.log( `Authentication successul for username: ${user.username}`);
+console.log( `Authentication successul for user: ${user.firstName} ${user.lastName}`);
 
 /*store the user on the request object
 req.currentUser means that you're adding a property named currentUser 
 to the request object and setting it to the authenticated user.*/
 req.currentUser = user;
     } else {
-        message = `Authentication failure for username: ${user.username}`;
+        message = `Authentication failure for user: ${user.firstName} ${user.lastName}`;
     }
 } else {
-    message = `User not found for username: ${credentials.name}`;
+    message = `User not found for user: ${credentials.firstName} ${credentials.lastName}`;
 }
     } else {
         message = 'Auth header not found';
