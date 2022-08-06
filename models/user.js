@@ -4,13 +4,7 @@ const bcryptjs = require("bcryptjs");
 
 module.exports = (sequelize) => {
   class User extends Model {}
-  User.init(
-    {
-      // id: {
-      //     type: DataTypes.INTEGER,
-      //     // primaryKey: true,
-      //     autoIncrement: true
-      //   },
+  User.init({
       firstName: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -70,20 +64,19 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
         set(val) {
-          if (val === this.password) {
+          if ( val === this.password ) {
             const hashedPassword = bcryptjs.hashSync(val, 10);
-            this.setDataValue("confirmedPassword", hashedPassword);
+            this.setDataValue('confirmedPassword', hashedPassword);
           }
         },
         validate: {
           notNull: {
-            msg: "Both passwords must match",
-          },
-        },
-      },
-    },
-    { sequelize }
-  );
+            msg: 'Both passwords must match'
+          }
+        }
+      }
+    }, { sequelize });
+  
 
   User.associate = (models) => {
     /*Add a one-to-many association between the User and Movie models. Include a call to the Person model's hasMany() method, 
