@@ -33,8 +33,8 @@ router.get('/users', asyncHandler(async (req, res) => {
 const user = req.currentUser;
 
 res.json({
-  name: user.name,
-  username: user.username
+  firstName: user.firstName,
+  lastName: user.lastName
 });
 }));
 
@@ -54,6 +54,94 @@ router.post('/users', asyncHandler(async (req, res) => {
     }
   }
 }));
+
+
+
+
+  // Send a GET request to /quotes to READ a list of quotes
+  router.get("/courses", async (req, res) => {
+    try {
+      const quotes = await records.getQuotes();
+      res.json(quotes);
+    } catch (err) {
+      res.json({ message: err.message });
+    }
+  });
+  // Send a GET request to /quotes/:id to READ(view) a quote
+  //this get method returns a single quote
+  
+  router.get("/courses/:id", async (req, res) => {
+    try {
+      const quote = await records.getQuote(req.params.id);
+      if (quote) {
+        res.json(quote);
+      } else {
+        res.status(404).json({ message: "Quote not found." });
+      }
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+  
+
+  // Send a POST request to /quotes to  CREATE a new quote
+  /*Because we want to await the creation of a record inside of this anonymous function, the
+  anonymous function needs to be asynchronous.*/
+  router.post(
+    "/quotes",
+    asyncHandler(async (req, res) => {
+      if (req.body.author && req.body.quote) {
+        const quote = await records.createQuote({
+          quote: req.body.quote,
+          author: req.body.author,
+        });
+        res.status(201).json(quote);
+      } else {
+        res.status(400).json({ message: "Quote and author required." });
+      }
+    })
+  );
+  
+  // Send a PUT request to /quotes/:id to UPDATE (edit) a quote
+  router.put(
+    "/courses/:id",
+    asyncHandler(async (req, res) => {
+      const quote = await records.getQuote(req.params.id);
+      if (quote) {
+        quote.quote = req.body.quote;
+        quote.author = req.body.author;
+  
+        await records.updateQuote(quote);
+        res.status(204).end();
+      } else {
+        res.status(404).json({ message: "Quote Not Found" });
+      }
+    })
+  );
+  
+  // Send a DELETE request to /quotes/:id DELETE a quote
+  router.delete("/courses/:id", async (req, res, next) => {
+    try {
+      throw new Error("Something terrible happened!");
+      const quote = await records.getQuote(req.params.id);
+      await records.deleteQuote(quote);
+      res.status(204).end();
+    } catch (err) {
+      /*Inside our catch block, instead of manually changing the status code and setting an error message as we were,
+      res.status(500).json({message: err.message});
+      we can simply pass the error to our global error handler using the express function, next. Because we're passing
+      next at parameter, express knows to run our global error handler next and it will pass along the error message*/
+      next(err);
+    }
+  });
+
+
+
+
+
+
+
+
 
 
 module.exports = router;
