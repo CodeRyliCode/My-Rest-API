@@ -19,9 +19,12 @@ function will never be called if the request doesn't successfully authenticate.*
 router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
 const currentUser = req.currentUser;
 
-const allUsers = await User.findAll();
-res.json(allUsers)
-
+res.json({
+  id: currentUser.id,
+  firstName: currentUser.firstName,
+  lastName: currentUser.lastName,
+  emailAddress: currentUser.emailAddress,
+});
 }));
 
 
@@ -30,8 +33,7 @@ res.json(allUsers)
 router.post('/users', asyncHandler(async (req, res) => {
   try {
     await User.create(req.body);
-    res.status(201).json({ "message": "Account successfully created!" });
-    
+    res.location('/');    
   } catch (error) {
     if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
       const errors = error.errors.map(err => err.message);
