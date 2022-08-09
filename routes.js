@@ -33,7 +33,8 @@ res.json({
 router.post('/users', asyncHandler(async (req, res) => {
   try {
     await User.create(req.body);
-    res.location('/');    
+    //Need to add .end() to res.location('/') so the response will finish and not be stuck in endless fetch.
+    res.location('/').end();    
   } catch (error) {
     if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
       const errors = error.errors.map(err => err.message);
@@ -98,7 +99,7 @@ router.post('/users', asyncHandler(async (req, res) => {
         try {
           const course = await Course.create(req.body);
           res.location(`/courses/${course.id}`);
-            res.status(201).json({ "message": "Course successfully created!" });
+            res.status(201).end();
           } catch (error) {
             if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
               const errors = error.errors.map(err => err.message);
